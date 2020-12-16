@@ -8,26 +8,49 @@ use App\Models\Todo;
 class TodoController extends Controller
 {
     public function index() {
-        return view('home')
+       $items = Todo::all();
+       return response()->json([
+             'message' => 'OK',
+             'data' => $items
+       ], 200);
     }
     //メインビューの表示
-    public function post(Request $request) {
-       $todo = new Todo();
-       $todo->todo = $request->todo;
-       $todo->save();
-       return response("OK", 200);
+    public function store(Request $request) {
+        $item = new Todo;
+        $item->todo = $request->todo;
+        $item->save();
+        return response()->json([
+            'message' => 'Todo created successfully',
+            'data' => $item
+        ], 200);
     }
     //１件追加
     public function destroy($id) {
-        Todo::find($id)->delete();
-        return response("OK", 200);
+        $item = Todo::where('id', $id->id)->delete();
+        if ($item) {
+            return response()->json([
+                'message' => 'Todo deleted successfully',
+            ],200);
+        } else {
+            return response()->json([
+                'message' => 'Todo not found',
+            ],404);
+        }
     }
     //１件削除
     public function update(Request $request, $id) {
-        $todo = Todo::find($id);
-        $todo->todo = $request->todo;
-        $todo->save();
-        return response("OK", 200);
+        $item = Todo::where('id', $id->id)->first();
+        $item->todo = $request->todo;
+        $item->save();
+        if ($item) {
+            return response()->json([
+                'message' => 'Todo updated successfully',
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Todo not found',
+            ], 404);
+        }
     }
     //１件更新
 }
